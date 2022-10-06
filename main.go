@@ -40,7 +40,7 @@ func PostData(RowID *string, obj *CartonDetail) {
 	url := "http://127.0.0.1:4040/api/v1/carton/history"
 	method := "POST"
 	pData := fmt.Sprintf("row_id=%s&whs=%s&part_no=%s&lot_no=%s&serial_no=%s&die_no=%s&rev_no=%d&qty=%d&shelve=%s&ip_address=%s&emp_id=%s&ref_no=%s&receive_no=%s&description=%s", *RowID, obj.Tagrp, obj.PartNo, obj.LotNo, obj.SerialNo, obj.LineNo, obj.ReviseNo, obj.Qty, obj.Shelve, obj.IpAddress, obj.SiID, obj.PalletNo, obj.InvoiceNo, obj.SiNo)
-	// fmt.Println(pData)
+	fmt.Println(pData)
 	payload := strings.NewReader(pData)
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
@@ -89,7 +89,7 @@ func FetchData(frm *CartonForm) {
 	}
 	fmt.Println("... Connected to Database")
 
-	dbQuery := fmt.Sprintf("SELECT rowid,TAGRP,PARTNO,LOTNO,RUNNINGNO,CASE WHEN CASEID IS NULL THEN '-' ELSE CASEID END CASEID,CASE WHEN CASENO IS NULL THEN 0 ELSE CASENO END CASENO,STOCKQUANTITY,CASE WHEN SHELVE IS NULL THEN '-' ELSE SHELVE END SHELVE,'%s' ip_address,CASE WHEN SIID IS NULL THEN '-' ELSE SIID END SIID,CASE WHEN PALLETKEY IS NULL THEN '-' ELSE PALLETKEY END PALLETKEY,INVOICENO,CASE WHEN SINO IS NULL THEN '-' ELSE SINO END SINO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", frm.IpAddress, frm.SerialNo)
+	dbQuery := fmt.Sprintf("SELECT TAGRP,PARTNO,LOTNO,RUNNINGNO,CASE WHEN CASEID IS NULL THEN '-' ELSE CASEID END CASEID,CASE WHEN CASENO IS NULL THEN 0 ELSE CASENO END CASENO,STOCKQUANTITY,CASE WHEN SHELVE IS NULL THEN '-' ELSE SHELVE END SHELVE,'%s' ip_address,CASE WHEN SIID IS NULL THEN '-' ELSE SIID END SIID,CASE WHEN PALLETKEY IS NULL THEN '-' ELSE PALLETKEY END PALLETKEY,INVOICENO,CASE WHEN SINO IS NULL THEN '-' ELSE SINO END SINO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", frm.IpAddress, frm.SerialNo)
 	rows, err := db.Query(dbQuery)
 	if err != nil {
 		fmt.Println(".....Error processing query")

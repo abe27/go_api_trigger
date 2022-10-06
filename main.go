@@ -109,6 +109,10 @@ func FetchData(serial_no, ip_address string) {
 func main() {
 	app := fiber.New()
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusCreated).JSON("Hello, world!")
+	})
+
 	app.Get("/carton", func(c *fiber.Ctx) error {
 		serial_no := c.Query("serial_no")
 		ip_address := c.Query("ip_address")

@@ -30,8 +30,9 @@ type CartonDetail struct {
 }
 
 type CartonForm struct {
-	SerialNo  string `form:"serial_no"`
-	IpAddress string `form:"ip_address"`
+	RowID     string `form:"row_id" json:"row_id"`
+	SerialNo  string `form:"serial_no" json:"serial_no"`
+	IpAddress string `form:"ip_address" json:"ip_address"`
 }
 
 func PostData(obj *CartonDetail) {
@@ -63,7 +64,7 @@ func PostData(obj *CartonDetail) {
 	fmt.Println(string(body))
 }
 
-func FetchData(serial_no, ip_address string) {
+func FetchData(row_id, serial_no, ip_address string) {
 	username := "expsys"
 	password := "expsys"
 	host := "192.168.101.215"
@@ -101,9 +102,10 @@ func FetchData(serial_no, ip_address string) {
 	// var tableName string
 	var carton CartonDetail
 	for rows.Next() {
-		rows.Scan(&carton.RowID, &carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
+		rows.Scan(&carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
 	}
-	go PostData(&carton)
+	carton.RowID = row_id
+	PostData(&carton)
 	fmt.Println("... Closing connection")
 	fmt.Printf("------------%d-------------------", &carton.RowID)
 	finishTime := time.Now()
@@ -124,7 +126,7 @@ func main() {
 			return c.Status(fiber.StatusInternalServerError).JSON("error")
 		}
 
-		go FetchData(obj.SerialNo, obj.IpAddress)
+		go FetchData(obj.RowID, obj.SerialNo, obj.IpAddress)
 		return c.Status(fiber.StatusCreated).JSON(&obj.SerialNo)
 	})
 

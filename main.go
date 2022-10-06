@@ -29,6 +29,11 @@ type CartonDetail struct {
 	SiNo      string // SINO         |TIMVOUT           |
 }
 
+type CartonForm struct {
+	SerialNo  string `form:"serial_no"`
+	IpAddress string `form:"ip_address"`
+}
+
 func PostData(obj *CartonDetail) {
 
 	url := "http://127.0.0.1:4040/api/v1/carton/history"
@@ -84,7 +89,6 @@ func FetchData(serial_no, ip_address string) {
 	fmt.Println("... Connected to Database")
 
 	dbQuery := fmt.Sprintf("SELECT rowid,TAGRP,PARTNO,LOTNO,RUNNINGNO,CASE WHEN CASEID IS NULL THEN '-' ELSE CASEID END CASEID,CASE WHEN CASENO IS NULL THEN 0 ELSE CASENO END CASENO,STOCKQUANTITY,CASE WHEN SHELVE IS NULL THEN '-' ELSE SHELVE END SHELVE,'%s' ip_address,CASE WHEN SIID IS NULL THEN '-' ELSE SIID END SIID,CASE WHEN PALLETKEY IS NULL THEN '-' ELSE PALLETKEY END PALLETKEY,INVOICENO,CASE WHEN SINO IS NULL THEN '-' ELSE SINO END SINO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", ip_address, serial_no)
-	fmt.Println(dbQuery)
 	rows, err := db.Query(dbQuery)
 	if err != nil {
 		fmt.Println(".....Error processing query")
@@ -113,14 +117,15 @@ func main() {
 		return c.Status(fiber.StatusCreated).JSON("Hello, world!")
 	})
 
-	app.Get("/carton", func(c *fiber.Ctx) error {
-		serial_no := c.Query("serial_no")
-		ip_address := c.Query("ip_address")
-		if serial_no != "" {
-			go FetchData(serial_no, ip_address)
-			return c.Status(fiber.StatusCreated).JSON(&serial_no)
+	app.Post("/carton", func(c *fiber.Ctx) error {
+		var obj CartonForm
+		err := c.BodyParser(&obj)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON("error")
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON("error")
+
+		go FetchData(obj.SerialNo, obj.IpAddress)
+		return c.Status(fiber.StatusCreated).JSON(&obj.SerialNo)
 	})
 
 	app.Listen(":4000")

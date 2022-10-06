@@ -40,7 +40,6 @@ func PostData(RowID *string, obj *CartonDetail) {
 	url := "http://127.0.0.1:4040/api/v1/carton/history"
 	method := "POST"
 	pData := fmt.Sprintf("row_id=%s&whs=%s&part_no=%s&lot_no=%s&serial_no=%s&die_no=%s&rev_no=%d&qty=%d&shelve=%s&ip_address=%s&emp_id=%s&ref_no=%s&receive_no=%s&description=%s", *RowID, obj.Tagrp, obj.PartNo, obj.LotNo, obj.SerialNo, obj.LineNo, obj.ReviseNo, obj.Qty, obj.Shelve, obj.IpAddress, obj.SiID, obj.PalletNo, obj.InvoiceNo, obj.SiNo)
-	fmt.Println(pData)
 	payload := strings.NewReader(pData)
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
@@ -62,6 +61,7 @@ func PostData(RowID *string, obj *CartonDetail) {
 		return
 	}
 	fmt.Println(string(body))
+	fmt.Printf("%s SERIALNO: %s\n", *RowID, obj.SerialNo)
 }
 
 func FetchData(frm *CartonForm) {

@@ -13,7 +13,7 @@ import (
 )
 
 type CartonDetail struct {
-	RowID     string // ROWID        |AABAE2AAFAAADmiAAA|
+	// RowID     *string // ROWID        |AABAE2AAFAAADmiAAA|
 	Tagrp     string // TAGRP        |C                 |
 	PartNo    string // PARTNO       |7116-5046-02      |
 	LotNo     string // LOTNO        |20818026          |
@@ -35,11 +35,11 @@ type CartonForm struct {
 	IpAddress string `form:"ip_address" json:"ip_address"`
 }
 
-func PostData(obj *CartonDetail) {
+func PostData(RowID *string, obj *CartonDetail) {
 
 	url := "http://127.0.0.1:4040/api/v1/carton/history"
 	method := "POST"
-	pData := fmt.Sprintf("row_id=%s&whs=%s&part_no=%s&lot_no=%s&serial_no=%s&die_no=%s&rev_no=%d&qty=%d&shelve=%s&ip_address=%s&emp_id=%s&ref_no=%s&receive_no=%s&description=%s", obj.RowID, obj.Tagrp, obj.PartNo, obj.LotNo, obj.SerialNo, obj.LineNo, obj.ReviseNo, obj.Qty, obj.Shelve, obj.IpAddress, obj.SiID, obj.PalletNo, obj.InvoiceNo, obj.SiNo)
+	pData := fmt.Sprintf("row_id=%s&whs=%s&part_no=%s&lot_no=%s&serial_no=%s&die_no=%s&rev_no=%d&qty=%d&shelve=%s&ip_address=%s&emp_id=%s&ref_no=%s&receive_no=%s&description=%s", *RowID, obj.Tagrp, obj.PartNo, obj.LotNo, obj.SerialNo, obj.LineNo, obj.ReviseNo, obj.Qty, obj.Shelve, obj.IpAddress, obj.SiID, obj.PalletNo, obj.InvoiceNo, obj.SiNo)
 	// fmt.Println(pData)
 	payload := strings.NewReader(pData)
 	client := &http.Client{}
@@ -64,7 +64,7 @@ func PostData(obj *CartonDetail) {
 	fmt.Println(string(body))
 }
 
-func FetchData(row_id, serial_no, ip_address string) {
+func FetchData(frm *CartonForm) {
 	username := "expsys"
 	password := "expsys"
 	host := "192.168.101.215"
@@ -89,7 +89,7 @@ func FetchData(row_id, serial_no, ip_address string) {
 	}
 	fmt.Println("... Connected to Database")
 
-	dbQuery := fmt.Sprintf("SELECT rowid,TAGRP,PARTNO,LOTNO,RUNNINGNO,CASE WHEN CASEID IS NULL THEN '-' ELSE CASEID END CASEID,CASE WHEN CASENO IS NULL THEN 0 ELSE CASENO END CASENO,STOCKQUANTITY,CASE WHEN SHELVE IS NULL THEN '-' ELSE SHELVE END SHELVE,'%s' ip_address,CASE WHEN SIID IS NULL THEN '-' ELSE SIID END SIID,CASE WHEN PALLETKEY IS NULL THEN '-' ELSE PALLETKEY END PALLETKEY,INVOICENO,CASE WHEN SINO IS NULL THEN '-' ELSE SINO END SINO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", ip_address, serial_no)
+	dbQuery := fmt.Sprintf("SELECT rowid,TAGRP,PARTNO,LOTNO,RUNNINGNO,CASE WHEN CASEID IS NULL THEN '-' ELSE CASEID END CASEID,CASE WHEN CASENO IS NULL THEN 0 ELSE CASENO END CASENO,STOCKQUANTITY,CASE WHEN SHELVE IS NULL THEN '-' ELSE SHELVE END SHELVE,'%s' ip_address,CASE WHEN SIID IS NULL THEN '-' ELSE SIID END SIID,CASE WHEN PALLETKEY IS NULL THEN '-' ELSE PALLETKEY END PALLETKEY,INVOICENO,CASE WHEN SINO IS NULL THEN '-' ELSE SINO END SINO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", frm.IpAddress, frm.SerialNo)
 	rows, err := db.Query(dbQuery)
 	if err != nil {
 		fmt.Println(".....Error processing query")
@@ -102,14 +102,13 @@ func FetchData(row_id, serial_no, ip_address string) {
 	// var tableName string
 	var carton CartonDetail
 	for rows.Next() {
-		rows.Scan(&carton.RowID, &carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
+		rows.Scan(&carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
 	}
-	if carton.SerialNo != "" {
-		fmt.Println("Post Serial No: ", carton.SerialNo)
-		PostData(&carton)
-	}
+
+	fmt.Println("Post RowID: ", frm.RowID)
+	PostData(&frm.RowID, &carton)
 	fmt.Println("... Closing connection")
-	fmt.Printf("------------%d-------------------", &carton.RowID)
+	fmt.Printf("------------%d-------------------", &frm.RowID)
 	finishTime := time.Now()
 	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
 }
@@ -128,7 +127,7 @@ func main() {
 			return c.Status(fiber.StatusInternalServerError).JSON("error")
 		}
 
-		go FetchData(obj.RowID, obj.SerialNo, obj.IpAddress)
+		go FetchData(&obj)
 		return c.Status(fiber.StatusCreated).JSON(&obj.SerialNo)
 	})
 

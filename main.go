@@ -102,10 +102,10 @@ func FetchData(row_id, serial_no, ip_address string) {
 	// var tableName string
 	var carton CartonDetail
 	for rows.Next() {
-		rows.Scan(&carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
+		rows.Scan(&carton.RowID, &carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
 	}
-	carton.RowID = row_id
 	if carton.SerialNo != "" {
+		fmt.Println("Post Serial No: ", carton.SerialNo)
 		PostData(&carton)
 	}
 	fmt.Println("... Closing connection")

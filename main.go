@@ -105,7 +105,9 @@ func FetchData(row_id, serial_no, ip_address string) {
 		rows.Scan(&carton.Tagrp, &carton.PartNo, &carton.LotNo, &carton.SerialNo, &carton.LineNo, &carton.ReviseNo, &carton.Qty, &carton.Shelve, &carton.IpAddress, &carton.SiID, &carton.PalletNo, &carton.InvoiceNo, &carton.SiNo)
 	}
 	carton.RowID = row_id
-	PostData(&carton)
+	if carton.SerialNo != "" {
+		PostData(&carton)
+	}
 	fmt.Println("... Closing connection")
 	fmt.Printf("------------%d-------------------", &carton.RowID)
 	finishTime := time.Now()

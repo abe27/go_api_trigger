@@ -110,8 +110,13 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/carton", func(c *fiber.Ctx) error {
-		go FetchData(c.Query("serial_no"), c.Query("ip_address"))
-		return c.SendString("Hello, World!")
+		serial_no := c.Query("serial_no")
+		ip_address := c.Query("ip_address")
+		if serial_no != "" {
+			go FetchData(serial_no, ip_address)
+			return c.Status(fiber.StatusCreated).JSON(&serial_no)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON("error")
 	})
 
 	app.Listen(":4000")

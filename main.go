@@ -35,14 +35,18 @@ type CartonForm struct {
 	IpAddress string `form:"ip_address" json:"ip_address"`
 }
 
-func PostData(RowID *string, obj *CartonDetail) {
+var username string = "expsys"
+var password string = "expsys"
+var host string = "192.168.101.215"
+var database string = "RMW"
+var url string = "http://127.0.0.1:4040/api/v1"
 
-	url := "http://127.0.0.1:4040/api/v1/carton/history"
+func PostData(RowID *string, obj *CartonDetail) {
 	method := "POST"
 	pData := fmt.Sprintf("row_id=%s&whs=%s&part_no=%s&lot_no=%s&serial_no=%s&die_no=%s&rev_no=%d&qty=%d&shelve=%s&ip_address=%s&emp_id=%s&ref_no=%s&receive_no=%s&description=%s", *RowID, obj.Tagrp, obj.PartNo, obj.LotNo, obj.SerialNo, obj.LineNo, obj.ReviseNo, obj.Qty, obj.Shelve, obj.IpAddress, obj.SiID, obj.PalletNo, obj.InvoiceNo, obj.SiNo)
 	payload := strings.NewReader(pData)
 	client := &http.Client{}
-	req, err := http.NewRequest(method, url, payload)
+	req, err := http.NewRequest(method, fmt.Sprintf("%s/carton/history", url), payload)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -65,11 +69,6 @@ func PostData(RowID *string, obj *CartonDetail) {
 }
 
 func FetchData(frm *CartonForm) {
-	username := "expsys"
-	password := "expsys"
-	host := "192.168.101.215"
-	database := "RMW"
-
 	currentTime := time.Now()
 	fmt.Println("Starting at : ", currentTime.Format("03:04:05:06 PM"))
 
@@ -113,6 +112,50 @@ func FetchData(frm *CartonForm) {
 	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
 }
 
+func FetchDataBySerialNo(serialNo string) bool {
+	currentTime := time.Now()
+	fmt.Println("Starting at : ", currentTime.Format("03:04:05:06 PM"))
+
+	fmt.Println("... Setting up Database Connection")
+	db, err := sql.Open("goracle", username+"/"+password+"@"+host+"/"+database)
+	if err != nil {
+		fmt.Println("... DB Setup Failed")
+		fmt.Println(err)
+		return false
+	}
+	defer db.Close()
+
+	fmt.Println("... Opening Database Connection")
+	if err = db.Ping(); err != nil {
+		fmt.Printf("Error connecting to the database: %s\n", err)
+		return false
+	}
+	fmt.Println("... Connected to Database")
+
+	dbQuery := fmt.Sprintf("SELECT RUNNINGNO FROM TXP_CARTONDETAILS WHERE RUNNINGNO='%s'", serialNo)
+	rows, err := db.Query(dbQuery)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		fmt.Println(err)
+		return false
+	}
+	defer rows.Close()
+
+	fmt.Println("... Parsing query results")
+	var serial_no string
+	for rows.Next() {
+		rows.Scan(&serial_no)
+	}
+
+	db.Exec(fmt.Sprintf("UPDATE TXP_CARTONDETAILS SET IS_CHECK=1 WHERE RUNNINGNO='%s'", serial_no))
+
+	fmt.Println("... Closing connection")
+	fmt.Printf("------------%s-------------------", serial_no)
+	finishTime := time.Now()
+	fmt.Println("Finished at ", finishTime.Format("03:04:05:06 PM"))
+	return serial_no != ""
+}
+
 func main() {
 	app := fiber.New()
 
@@ -131,5 +174,17 @@ func main() {
 		return c.Status(fiber.StatusCreated).JSON(&obj.SerialNo)
 	})
 
+	app.Get("/carton/search", func(c *fiber.Ctx) error {
+		serial_no := c.Query("serial_no")
+		if serial_no == "" {
+			return c.Status(fiber.StatusBadRequest).JSON("Not Allow!")
+		}
+		isFound := FetchDataBySerialNo(serial_no)
+		fmt.Printf("serial_no: %s is: %v\n", serial_no, isFound)
+		if isFound {
+			return c.Status(fiber.StatusFound).JSON(serial_no)
+		}
+		return c.Status(fiber.StatusNotFound).JSON(serial_no)
+	})
 	app.Listen(":4000")
 }

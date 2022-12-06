@@ -16,10 +16,10 @@ func init() {
 	if err != nil {
 		panic("Error loading .env file")
 	}
-	configs.USERNAME = os.Getenv("USERNAME")
-	configs.PASSWORD = os.Getenv("PASSWORD")
-	configs.HOST = os.Getenv("HOST")
-	configs.DATABASE = os.Getenv("DATABASE")
+	configs.USERNAME = os.Getenv("DB_USERNAME")
+	configs.PASSWORD = os.Getenv("DB_PASSWORD")
+	configs.HOST = os.Getenv("DB_HOST")
+	configs.DATABASE = os.Getenv("DB_DATABASE")
 	configs.REST_URL = os.Getenv("REST_URL")
 }
 

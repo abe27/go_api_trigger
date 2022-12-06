@@ -18,6 +18,7 @@ func FetchAllStock(c *fiber.Ctx) error {
 	}
 
 	// Open Connection
+	fmt.Println(configs.USERNAME + "/" + configs.PASSWORD + "@" + configs.HOST + "/" + configs.DATABASE)
 	db, err := sql.Open("goracle", configs.USERNAME+"/"+configs.PASSWORD+"@"+configs.HOST+"/"+configs.DATABASE)
 	if err != nil {
 		fmt.Println("... DB Setup Failed")

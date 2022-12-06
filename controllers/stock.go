@@ -39,7 +39,7 @@ func FetchAllStock(c *fiber.Ctx) error {
 	if c.Query("part_no") != "" {
 		dbQuery = fmt.Sprintf("SELECT TAGRP,PARTNO,min(LOTNO) LOTNO,min(CASEID) LINENO, CASE when MIN(CASENO) IS NULL THEN 0 ELSE MIN(CASENO) END REVISENO,min(SHELVE) SHELVE, min(PALLETKEY) PALLETNO,STOCKQUANTITY QTY,count(PARTNO) CTN,min(SYSDTE) CREATEDAT,max(UPDDTE) UPDATEDAT FROM TXP_CARTONDETAILS WHERE STOCKQUANTITY > 0 AND SHELVE NOT IN ('S-XXX', 'S-PLOUT') AND TAGRP='%s' AND PARTNO like '%s' GROUP BY TAGRP,PARTNO,STOCKQUANTITY ORDER BY PARTNO", tagrp, "%"+c.Query("part_no")+"%")
 	}
-	fmt.Println(dbQuery)
+	// fmt.Println(dbQuery)
 	rows, err := db.Query(dbQuery)
 	if err != nil {
 		fmt.Println(".....Error processing query")

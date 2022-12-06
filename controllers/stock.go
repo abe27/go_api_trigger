@@ -60,7 +60,7 @@ func FetchAllStock(c *fiber.Ctx) error {
 			&r.Ctn,
 			&r.CreatedAt,
 			&r.UpdatedAt)
-		fmt.Printf("%d %s\n", rnd, r.PartNo)
+		// fmt.Printf("%d %s\n", rnd, r.PartNo)
 		r.ID = int64(rnd)
 		if r.ReviseNo == "0" {
 			r.ReviseNo = "-"

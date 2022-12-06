@@ -146,3 +146,4 @@ fabric.properties
 tmp/
 .air.toml
 go.sum
+.env

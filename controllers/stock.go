@@ -34,7 +34,8 @@ func FetchAllStock(c *fiber.Ctx) error {
 	}
 	fmt.Println("... Connected to Database")
 
-	dbQuery := fmt.Sprintf("SELECT TAGRP,PARTNO,STOCKQUANTITY,count(PARTNO) ctn FROM TXP_CARTONDETAILS WHERE STOCKQUANTITY > 0 AND TAGRP='%s' GROUP BY TAGRP,PARTNO,STOCKQUANTITY ORDER BY PARTNO", tagrp)
+	// dbQuery := fmt.Sprintf("SELECT TAGRP,PARTNO,PARTNO PARTNAME,min(LOTNO) LOTNO,min(CASEID) LINENO, MIN(CASENO) REVISENO,min(SHELVE) SHELVE, min(PALLETKEY) PALLETNO,STOCKQUANTITY QTY,count(PARTNO) CTN,min(SYSDTE) CREATEDAT,max(UPDDTE) UPDATEDAT FROM TXP_CARTONDETAILS WHERE STOCKQUANTITY > 0 AND SHELVE NOT IN ('S-XXX', 'S-PLOUT') AND TAGRP='%s' GROUP BY TAGRP,PARTNO,STOCKQUANTITY ORDER BY PARTNO", tagrp)
+	dbQuery := fmt.Sprintf("SELECT TAGRP,PARTNO,min(LOTNO) LOTNO,min(CASEID) LINENO, CASE when MIN(CASENO) IS NULL THEN 0 ELSE MIN(CASENO) END REVISENO,min(SHELVE) SHELVE, min(PALLETKEY) PALLETNO,STOCKQUANTITY QTY,count(PARTNO) CTN,min(SYSDTE) CREATEDAT,max(UPDDTE) UPDATEDAT FROM TXP_CARTONDETAILS WHERE STOCKQUANTITY > 0 AND SHELVE NOT IN ('S-XXX', 'S-PLOUT') AND TAGRP='%s' GROUP BY TAGRP,PARTNO,STOCKQUANTITY ORDER BY PARTNO", tagrp)
 	rows, err := db.Query(dbQuery)
 	if err != nil {
 		fmt.Println(".....Error processing query")
@@ -48,9 +49,22 @@ func FetchAllStock(c *fiber.Ctx) error {
 	rnd := 1
 	for rows.Next() {
 		var r models.Stock
-		rows.Scan(&r.Tagrp, &r.PartNo, &r.Qty, &r.Ctn)
+		rows.Scan(&r.Tagrp,
+			&r.PartNo,
+			&r.LotNo,
+			&r.LineNo,
+			&r.ReviseNo,
+			&r.Shelve,
+			&r.PalletNo,
+			&r.Qty,
+			&r.Ctn,
+			&r.CreatedAt,
+			&r.UpdatedAt)
 		fmt.Printf("%d %s\n", rnd, r.PartNo)
 		r.ID = int64(rnd)
+		if r.ReviseNo == "0" {
+			r.ReviseNo = "-"
+		}
 		data = append(data, r)
 		rnd++
 	}

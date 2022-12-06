@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type CartonDetail struct {
 	// RowID     *string // ROWID        |AABAE2AAFAAADmiAAA|
 	Tagrp     string // TAGRP        |C                 |
@@ -24,10 +26,17 @@ type CartonForm struct {
 }
 
 type Stock struct {
-	ID       int64   `form:"id" json:"id"`
-	Tagrp    string  `form:"tagrp" json:"tagrp"`
-	PartNo   string  `form:"part_no" json:"part_no"`
-	PartName string  `form:"part_name" json:"part_name"`
-	Qty      float64 `form:"qty" json:"qty"`
-	Ctn      float64 `form:"ctn" json:"ctn"`
+	ID        int64     `form:"id" json:"id"`
+	Tagrp     string    `form:"tagrp" json:"tagrp"`
+	PartNo    string    `form:"part_no" json:"part_no"`
+	PartName  string    `form:"part_name" json:"part_name"`
+	LotNo     string    `json:"lot_no"`
+	LineNo    string    `json:"line_no"`
+	ReviseNo  string    `json:"revise_no"`
+	Shelve    string    `json:"shelve"`
+	PalletNo  string    `json:"pallet_no"`
+	Qty       float64   `json:"qty"`
+	Ctn       float64   `json:"ctn"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -30,6 +30,7 @@ type Stock struct {
 	Tagrp     string    `form:"tagrp" json:"tagrp"`
 	PartNo    string    `form:"part_no" json:"part_no"`
 	PartName  string    `form:"part_name" json:"part_name"`
+	SerialNo  string    `json:"serial_no"`
 	LotNo     string    `json:"lot_no"`
 	LineNo    string    `json:"line_no"`
 	ReviseNo  string    `json:"revise_no"`

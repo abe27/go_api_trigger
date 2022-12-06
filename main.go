@@ -56,5 +56,6 @@ func main() {
 
 	/// router for stock
 	app.Get("/stock", controllers.FetchAllStock)
+	app.Get("/stock/:part_no", controllers.FetchStockByPartNo)
 	app.Listen(":4000")
 }

@@ -59,5 +59,6 @@ func main() {
 	app.Get("/stock/:part_no", controllers.FetchStockByPartNo)
 	app.Get("/shelve/:shelve_no", controllers.FetchStockByShelve)
 	app.Get("/serial_no/:serial_no", controllers.FetchStockBySerialNo)
+	app.Put("/serial_no", controllers.UpdateStockBySerialNo)
 	app.Listen(":4000")
 }

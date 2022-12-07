@@ -41,3 +41,11 @@ type Stock struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type FrmUpdateStock struct {
+	EmpId    string `form:"emp_id" json:"emp_id" binding:"required"`
+	SerialNo string `form:"serial_no" json:"serial_no" binding:"required"`
+	Shelve   string `form:"shelve" json:"shelve" binding:"required"`
+	Qty      int64  `form:"qty" json:"qty"`
+	Ctn      int64  `form:"ctn" json:"ctn" binding:"required"`
+}

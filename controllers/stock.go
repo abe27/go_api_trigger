@@ -306,7 +306,7 @@ func UpdateStockBySerialNo(c *fiber.Ctx) error {
 
 	strExecute := fmt.Sprintf("UPDATE TXP_CARTONDETAILS SET STOCKQUANTITY=0,SHELVE='S-PLOUT',SIDTE=sysdate,SINO='TIMVOUT',SIID='%s' WHERE RUNNINGNO='%s'", frm.EmpId, frm.SerialNo)
 	if frm.Ctn > 0 {
-		strExecute = fmt.Sprintf("UPDATE TXP_CARTONDETAILS SET STOCKQUANTITY=RECEIVINGQUANTITY,SHELVE='SNON',SIDTE=null,SINO=null,SIID='%s' WHERE RUNNINGNO='%s'", frm.EmpId, frm.SerialNo)
+		strExecute = fmt.Sprintf("UPDATE TXP_CARTONDETAILS SET STOCKQUANTITY=RECEIVINGQUANTITY,OLDPALLETKEY=PALLETKEY,PALLETKEY=null,SHELVE='SNON',SIDTE=null,SINO=null,SIID='%s' WHERE RUNNINGNO='%s'", frm.EmpId, frm.SerialNo)
 	}
 	if _, err := db.Exec(strExecute); err != nil {
 		r.Message = err.Error()

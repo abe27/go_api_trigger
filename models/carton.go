@@ -64,11 +64,13 @@ type StockCheckDetail struct {
 	Tagrp      string    `json:"tagrp"`  //TAGRP
 	PartNo     string    `json:"partno"` //PARTNO
 	PartName   string    `json:"partname"`
-	LotNo      string    `json:"lot_no"`      // LOTNO
-	SerialNo   string    `json:"serial_no"`   // RUNNINGNO
-	Qty        int64     `json:"qty"`         // STOCKQUANTITY
-	Shelve     string    `json:"shelve"`      // SHELVE
-	PalletNo   string    `json:"pallet_no"`   // PALLETKEY
+	LotNo      string    `json:"lot_no"`    // LOTNO
+	SerialNo   string    `json:"serial_no"` // RUNNINGNO
+	Qty        int64     `json:"qty"`       // STOCKQUANTITY
+	Shelve     string    `json:"shelve"`    // SHELVE
+	PalletNo   string    `json:"pallet_no"` // PALLETKEY
+	LineNo     string    `json:"line_no"`
+	ReviseNo   string    `json:"revise_no"`
 	Checked    int64     `json:"checked_flg"` // STKTAKECHKFLG
 	LastUpdate time.Time `json:"last_update"` // UPDDTE
 }

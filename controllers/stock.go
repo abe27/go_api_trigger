@@ -398,7 +398,7 @@ func GetCheckStockDetail(c *fiber.Ctx) error {
 	if c.Query("part_no") != "" {
 		partQuery = c.Query("part_no")
 	}
-	sqlFetch := fmt.Sprintf("SELECT c.TAGRP,c.PARTNO,'' partname,c.LOTNO,c.RUNNINGNO,c.STOCKQUANTITY,c.SHELVE,c.PALLETKEY,s.STKTAKECHKFLG,c.UPDDTE FROM TXP_CARTONDETAILS c LEFT JOIN TXP_STKTAKECARTON s ON c.TAGRP=s.TAGRP AND c.PARTNO=s.PARTNO WHERE c.TAGRP='%s' AND c.PARTNO='%s' ORDER BY c.TAGRP,c.PARTNO,c.LOTNO,c.RUNNINGNO", tagrp, partQuery)
+	sqlFetch := fmt.Sprintf("SELECT c.TAGRP,c.PARTNO,'' partname,c.LOTNO,c.RUNNINGNO,c.STOCKQUANTITY,c.SHELVE,c.PALLETKEY,s.STKTAKECHKFLG,c.UPDDTE FROM TXP_CARTONDETAILS c INNER JOIN TXP_STKTAKECARTON s ON c.TAGRP=s.TAGRP AND c.PARTNO=s.PARTNO  AND c.RUNNINGNO=s.RUNNINGNO WHERE c.TAGRP='%s' AND c.PARTNO='%s' ORDER BY c.TAGRP,c.PARTNO,c.LOTNO,c.RUNNINGNO", tagrp, partQuery)
 	// fmt.Printf("%s\n", sqlFetch)
 	rows, err := db.Query(sqlFetch)
 	if err != nil {

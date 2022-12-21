@@ -347,7 +347,11 @@ func GetCheckStock(c *fiber.Ctx) error {
 	}
 	defer db.Close()
 
-	sqlFetch := fmt.Sprintf("SELECT s.TAGRP,s.PARTNO,pp.PARTNAME,count(s.PARTNO) total,max(p.isCheck) checked,count(s.PARTNO)-max(p.isCheck) notCheck,max(s.UPDDTE) last_update FROM TXP_stktakecarton s LEFT JOIN (SELECT s.TAGRP,s.PARTNO,count(s.PARTNO) isCheck FROM TXP_stktakecarton s WHERE s.STKTAKECHKFLG IS NOT NULL  GROUP BY s.TAGRP,s.PARTNO ORDER BY s.PARTNO) p ON s.TAGRP=p.TAGRP AND s.PARTNO = p.PARTNO INNER JOIN TXP_PART pp ON s.PARTNO=pp.PARTNO AND s.TAGRP=pp.TAGRP WHERE s.TAGRP='%s' GROUP BY s.TAGRP,s.PARTNO,pp.PARTNAME ORDER BY s.PARTNO", tagrp)
+	partQuery := ""
+	if c.Query("part_no") != "-" {
+		partQuery = "AND s.PARTNO LIKE '%" + c.Query("part_no") + "%'"
+	}
+	sqlFetch := fmt.Sprintf("SELECT s.TAGRP,s.PARTNO,pp.PARTNAME,count(s.PARTNO) total,max(p.isCheck) checked,count(s.PARTNO)-max(p.isCheck) notCheck,max(s.UPDDTE) last_update FROM TXP_stktakecarton s LEFT JOIN (SELECT s.TAGRP,s.PARTNO,count(s.PARTNO) isCheck FROM TXP_stktakecarton s WHERE s.STKTAKECHKFLG IS NOT NULL  GROUP BY s.TAGRP,s.PARTNO ORDER BY s.PARTNO) p ON s.TAGRP=p.TAGRP AND s.PARTNO = p.PARTNO INNER JOIN TXP_PART pp ON s.PARTNO=pp.PARTNO AND s.TAGRP=pp.TAGRP WHERE s.TAGRP='%s' %s GROUP BY s.TAGRP,s.PARTNO,pp.PARTNAME ORDER BY s.PARTNO", tagrp, partQuery)
 	// fmt.Printf("%s\n", sqlFetch)
 	rows, err := db.Query(sqlFetch)
 	if err != nil {

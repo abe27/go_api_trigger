@@ -331,3 +331,45 @@ func UpdateStockBySerialNo(c *fiber.Ctx) error {
 	r.Data = &frm
 	return c.Status(fiber.StatusOK).JSON(&r)
 }
+
+func GetCheckStock(c *fiber.Ctx) error {
+	var r models.Response
+	tagrp := "C"
+	if c.Query("tag") != "" {
+		tagrp = c.Query("tag")
+	}
+
+	db, err := sql.Open("goracle", configs.USERNAME+"/"+configs.PASSWORD+"@"+configs.HOST+"/"+configs.DATABASE)
+	if err != nil {
+		fmt.Println("... DB Setup Failed")
+		r.Message = err.Error()
+		return c.Status(fiber.StatusBadRequest).JSON(&r)
+	}
+	defer db.Close()
+
+	sqlFetch := fmt.Sprintf("SELECT s.TAGRP,s.PARTNO,pp.PARTNAME,count(s.PARTNO) total,max(p.isCheck) checked,count(s.PARTNO)-max(p.isCheck) notCheck FROM TXP_stktakecarton s LEFT JOIN (SELECT s.TAGRP,s.PARTNO,count(s.PARTNO) isCheck FROM TXP_stktakecarton s WHERE s.STKTAKECHKFLG IS NOT NULL  GROUP BY s.TAGRP,s.PARTNO ORDER BY s.PARTNO) p ON s.TAGRP=p.TAGRP AND s.PARTNO = p.PARTNO INNER JOIN TXP_PART pp ON s.PARTNO=pp.PARTNO AND s.TAGRP=pp.TAGRP WHERE s.TAGRP='%s' GROUP BY s.TAGRP,s.PARTNO,pp.PARTNAME ORDER BY s.PARTNO", tagrp)
+	// fmt.Printf("%s\n", sqlFetch)
+	rows, err := db.Query(sqlFetch)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		r.Message = err.Error()
+		return c.Status(fiber.StatusBadRequest).JSON(&r)
+	}
+	defer rows.Close()
+
+	var data []models.StockCheck
+	for rows.Next() {
+		var r models.StockCheck
+		rows.Scan(
+			&r.Tagrp,
+			&r.PartNo,
+			&r.PartName,
+			&r.Total,
+			&r.Checked,
+			&r.NotCheck,
+		)
+		data = append(data, r)
+	}
+	r.Data = &data
+	return c.Status(fiber.StatusOK).JSON(&r)
+}

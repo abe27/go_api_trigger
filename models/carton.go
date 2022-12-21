@@ -49,3 +49,12 @@ type FrmUpdateStock struct {
 	Qty      int64  `form:"qty" json:"qty"`
 	Ctn      int64  `form:"ctn" json:"ctn" binding:"required"`
 }
+
+type StockCheck struct {
+	Tagrp    string `json:"tagrp"`    // TAGRP
+	PartNo   string `json:"partno"`   // PARTNO
+	PartName string `json:"partname"` // PARTNAME
+	Total    int64  `json:"total"`    // TOTAL
+	Checked  int64  `json:"checked"`  // CHECKED
+	NotCheck int64  `json:"notcheck"` // NOTCHECK
+}

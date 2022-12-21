@@ -51,10 +51,11 @@ type FrmUpdateStock struct {
 }
 
 type StockCheck struct {
-	Tagrp    string `json:"tagrp"`    // TAGRP
-	PartNo   string `json:"partno"`   // PARTNO
-	PartName string `json:"partname"` // PARTNAME
-	Total    int64  `json:"total"`    // TOTAL
-	Checked  int64  `json:"checked"`  // CHECKED
-	NotCheck int64  `json:"notcheck"` // NOTCHECK
+	Tagrp      string    `json:"tagrp"`    // TAGRP
+	PartNo     string    `json:"partno"`   // PARTNO
+	PartName   string    `json:"partname"` // PARTNAME
+	Total      int64     `json:"total"`    // TOTAL
+	Checked    int64     `json:"checked"`  // CHECKED
+	NotCheck   int64     `json:"notcheck"` // NOTCHECK
+	LastUpdate time.Time `json:"last_update"`
 }

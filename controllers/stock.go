@@ -378,3 +378,53 @@ func GetCheckStock(c *fiber.Ctx) error {
 	r.Data = &data
 	return c.Status(fiber.StatusOK).JSON(&r)
 }
+
+func GetCheckStockDetail(c *fiber.Ctx) error {
+	var r models.Response
+	tagrp := "C"
+	if c.Query("tag") != "" {
+		tagrp = c.Query("tag")
+	}
+
+	db, err := sql.Open("goracle", configs.USERNAME+"/"+configs.PASSWORD+"@"+configs.HOST+"/"+configs.DATABASE)
+	if err != nil {
+		fmt.Println("... DB Setup Failed")
+		r.Message = err.Error()
+		return c.Status(fiber.StatusBadRequest).JSON(&r)
+	}
+	defer db.Close()
+
+	partQuery := ""
+	if c.Query("part_no") != "" {
+		partQuery = c.Query("part_no")
+	}
+	sqlFetch := fmt.Sprintf("SELECT c.TAGRP,c.PARTNO,'' partname,c.LOTNO,c.RUNNINGNO,c.STOCKQUANTITY,c.SHELVE,c.PALLETKEY,s.STKTAKECHKFLG,c.UPDDTE FROM TXP_CARTONDETAILS c LEFT JOIN TXP_STKTAKECARTON s ON c.TAGRP=s.TAGRP AND c.PARTNO=s.PARTNO WHERE c.TAGRP='%s' AND c.PARTNO='%s' ORDER BY c.TAGRP,c.PARTNO,c.LOTNO,c.RUNNINGNO", tagrp, partQuery)
+	// fmt.Printf("%s\n", sqlFetch)
+	rows, err := db.Query(sqlFetch)
+	if err != nil {
+		fmt.Println(".....Error processing query")
+		r.Message = err.Error()
+		return c.Status(fiber.StatusBadRequest).JSON(&r)
+	}
+	defer rows.Close()
+
+	var data []models.StockCheckDetail
+	for rows.Next() {
+		var r models.StockCheckDetail
+		rows.Scan(
+			&r.Tagrp,
+			&r.PartNo,
+			&r.PartName,
+			&r.LotNo,
+			&r.SerialNo,
+			&r.Qty,
+			&r.Shelve,
+			&r.PalletNo,
+			&r.Checked,
+			&r.LastUpdate,
+		)
+		data = append(data, r)
+	}
+	r.Data = &data
+	return c.Status(fiber.StatusOK).JSON(&r)
+}

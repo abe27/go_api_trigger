@@ -13,7 +13,7 @@ import (
 func FetchAllStock(c *fiber.Ctx) error {
 	var r models.Response
 	tagrp := "C"
-	if c.Query("tag") != "" {
+	if c.Query("tag") != "" && c.Query("tag") != "-" {
 		tagrp = c.Query("tag")
 	}
 
@@ -85,7 +85,7 @@ func FetchAllStock(c *fiber.Ctx) error {
 func FetchStockByPartNo(c *fiber.Ctx) error {
 	var r models.Response
 	tagrp := "C"
-	if c.Query("tag") != "" {
+	if c.Query("tag") != "" && c.Query("tag") != "-" {
 		tagrp = c.Query("tag")
 	}
 
@@ -158,7 +158,7 @@ func FetchStockByPartNo(c *fiber.Ctx) error {
 func FetchStockByShelve(c *fiber.Ctx) error {
 	var r models.Response
 	tagrp := "C"
-	if c.Query("tag") != "" {
+	if c.Query("tag") != "" && c.Query("tag") != "-" {
 		tagrp = c.Query("tag")
 	}
 
@@ -335,7 +335,7 @@ func UpdateStockBySerialNo(c *fiber.Ctx) error {
 func GetCheckStock(c *fiber.Ctx) error {
 	var r models.Response
 	tagrp := "C"
-	if c.Query("tag") != "" {
+	if c.Query("tag") != "" && c.Query("tag") != "-" {
 		tagrp = c.Query("tag")
 	}
 
@@ -382,7 +382,7 @@ func GetCheckStock(c *fiber.Ctx) error {
 func GetCheckStockDetail(c *fiber.Ctx) error {
 	var r models.Response
 	tagrp := "C"
-	if c.Query("tag") != "" {
+	if c.Query("tag") != "" && c.Query("tag") != "-" {
 		tagrp = c.Query("tag")
 	}
 

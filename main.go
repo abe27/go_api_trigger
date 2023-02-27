@@ -62,5 +62,5 @@ func main() {
 	app.Put("/serial_no", controllers.UpdateStockBySerialNo)
 	app.Get("/check_stock", controllers.GetCheckStock)
 	app.Get("/stock_detail", controllers.GetCheckStockDetail)
-	app.Listen(fmt.Printf(":%s", os.Getenv("PORT")))
+	app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }
